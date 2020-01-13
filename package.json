@@ -1,0 +1,35 @@
+{
+  "name": "combine-workbox-precaches-plugin",
+  "version": "1.0.1",
+  "description": "Unoffical plugin for Google Workbox. Combines precaches of multiple entry points.",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublish": "babel src --out-dir lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurbaniec-tgm/combine-workbox-precaches-plugin.git"
+  },
+  "keywords": [
+    "workbox",
+    "workboxjs",
+    "webpack",
+    "service-worker",
+    "precache"
+  ],
+  "author": "Kacper Urbaniec",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kurbaniec-tgm/combine-workbox-precaches-plugin/issues"
+  },
+  "homepage": "https://github.com/kurbaniec-tgm/combine-workbox-precaches-plugin#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.0",
+    "@babel/core": "^7.8.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.0",
+    "@babel/preset-env": "^7.8.2",
+    "babel-preset-minify": "^0.5.1",
+    "babel-preset-es2015": "^7.0.0-beta.3"
+  }
+}
