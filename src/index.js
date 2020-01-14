@@ -31,58 +31,70 @@ class CombineWorkboxPrecachesPlugin {
         this.precaches += precache + os.EOL;
     }
 
-    static timeout = 2000;
+    static timeout = 5000;
+
+    static hot = false;
 
     pluginName = "[combine-workbox-precaches-plugin] ";
 
     apply(compiler) {
         compiler.hooks.emit.tapAsync('WorkboxSavePrecachePlugin', async (compilation, callback) => {
-            if (CombineWorkboxPrecachesPlugin.amount === undefined) {
-                throw this.pluginName + "You need to set the amount of precaches of the WorkboxCombinePrecachesPlugin " +
-                "through `WorkboxCombinePrecachesPlugin.amount = your_amount` before using the plugin.";
-            }
-            else if (this.mode === 'save') {
-                if (CombineWorkboxPrecachesPlugin.counter >= CombineWorkboxPrecachesPlugin.amount) {
-                    throw this.pluginName + "When calling the WorkboxCombinePrecachesPlugin on the last precache you " +
-                    "need to use the mode `combine`";
-                } else {
-                    const content = compilation.assets[this.fileName].source();
-                    const precacheImport = content.substring(0, content.search(';')+1);
-                    CombineWorkboxPrecachesPlugin.cache.push(precacheImport);
-                    delete compilation.assets[this.fileName];
-                    CombineWorkboxPrecachesPlugin.counter++;
-                    if (CombineWorkboxPrecachesPlugin.counter + 1 === CombineWorkboxPrecachesPlugin.amount) {
-                        CombineWorkboxPrecachesPlugin.flag = true;
-                    }
-                    callback();
-                }
-            } else if (this.mode === 'combine') {
-                if (CombineWorkboxPrecachesPlugin.flag === false) {
-                    await this.wait();
-                }
-                if (CombineWorkboxPrecachesPlugin.counter + 1 === CombineWorkboxPrecachesPlugin.amount) {
-                    CombineWorkboxPrecachesPlugin.cache.forEach(item =>
-                        CombineWorkboxPrecachesPlugin.addPrecache(item));
-
-                    const serviceWorker = CombineWorkboxPrecachesPlugin.precaches +
-                        compilation.assets[this.fileName].source();
-
-                    compilation.assets[this.fileName] = {
-                        source: function() {
-                            return serviceWorker;
-                        },
-                        size: function() {
-                            return serviceWorker.length;
+            // Check if plugin is not called on Hot Module Replacement in Webpack-Dev-Server
+            if (!CombineWorkboxPrecachesPlugin.hot) {
+                if (CombineWorkboxPrecachesPlugin.amount === undefined) {
+                    throw this.pluginName + "You need to set the amount of precaches of the WorkboxCombinePrecachesPlugin " +
+                    "through `WorkboxCombinePrecachesPlugin.amount = your_amount` before using the plugin.";
+                } else if (this.mode === 'save') {
+                    if (CombineWorkboxPrecachesPlugin.counter >= CombineWorkboxPrecachesPlugin.amount) {
+                        throw this.pluginName + "When calling the WorkboxCombinePrecachesPlugin on the last precache you " +
+                        "need to use the mode `combine`";
+                    } else {
+                        const content = compilation.assets[this.fileName].source();
+                        const precacheImport = content.substring(0, content.search(';') + 1);
+                        CombineWorkboxPrecachesPlugin.cache.push(precacheImport);
+                        delete compilation.assets[this.fileName];
+                        CombineWorkboxPrecachesPlugin.counter++;
+                        if (CombineWorkboxPrecachesPlugin.counter + 1 === CombineWorkboxPrecachesPlugin.amount) {
+                            CombineWorkboxPrecachesPlugin.flag = true;
                         }
-                    };
+                        callback();
+                    }
+                } else if (this.mode === 'combine') {
+                    if (CombineWorkboxPrecachesPlugin.flag === false) {
+                        await this.wait();
+                    }
+                    if (CombineWorkboxPrecachesPlugin.counter + 1 === CombineWorkboxPrecachesPlugin.amount) {
+                        CombineWorkboxPrecachesPlugin.cache.forEach(item =>
+                            CombineWorkboxPrecachesPlugin.addPrecache(item));
 
-                    callback();
+                        const serviceWorker = CombineWorkboxPrecachesPlugin.precaches +
+                            compilation.assets[this.fileName].source();
 
+                        compilation.assets[this.fileName] = {
+                            source: function () {
+                                return serviceWorker;
+                            },
+                            size: function () {
+                                return serviceWorker.length;
+                            }
+                        };
+
+                        CombineWorkboxPrecachesPlugin.hot = true;
+
+                        callback();
+
+                    } else {
+                        throw this.pluginName + "Expected more precaches."
+                    }
                 } else {
-                    throw this.pluginName + "Expected more precaches."
+                    throw this.pluginName + 'Unknown mode: ' + this.mode;
                 }
-            } else {
-                throw this.pluginName + 'Unknown mode: ' + this.mode;
+            }
+            // When called on Hot Module Replacement do nothing
+            // Note: Use the `Bypass for network` option in the Chrome debugger in order
+            // to work properly with the Service-Worker with Hot Module Replacement.
+            else {
+                callback();
             }
         });
     }

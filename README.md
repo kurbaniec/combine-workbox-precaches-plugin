@@ -9,7 +9,7 @@
 
 ## Why?
 
-If you have an app with multiple Webpack entry points for like a Web-App and a Web-Worker, then the Workbox-Plugin with `InjectManifest` will always override its generated Service-Worker files from other entry points which results in missing precache import statements.  This plugin captures all precache import statements and inserts them into the generated Service-Worker file.
+If you have an app with multiple Webpack entry points for like a Web-App and a Web-Worker, then the Workbox-Plugin with `InjectManifest` will always override its generated Service-Worker files from other entry points which results in missing precache import statements.  This plugin captures all precache import statements and inserts them into the generated Service-Worker file.
 
 ## Usage
 
@@ -40,7 +40,7 @@ If you have an app with multiple Webpack entry points for like a Web-App and a W
 
 4. On the final entry use this plugin with the option combine
 
-   > Note: If you use `null` for the filename, `service-worker.js` will be used as default.
+   > Note: If you use `null` for the filename, `service-worker.js` will be used as default.
 
    ```js
    new WorkboxPlugin.InjectManifest({
@@ -50,7 +50,13 @@ If you have an app with multiple Webpack entry points for like a Web-App and a W
    new CombineWorkboxPrecachesPlugin('combine', null),
    ```
 
-   
+## Usage with Webpack-Dev-Server and Hot Module Replacement
+
+This section assumes that you use Chrome / Chromium for debugging.
+
+When using the plugin with the Webpack-Dev-Server for debugging purposes it is important that you use the following options for the Service-Worker.  
+
+![](res/debug.PNG)
 
 ## Disclaimer
 
