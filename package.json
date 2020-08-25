@@ -1,6 +1,6 @@
 {
   "name": "combine-workbox-precaches-plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Unoffical plugin for Google Workbox. Combines precaches of multiple entry points.",
   "main": "lib/index.js",
   "scripts": {
